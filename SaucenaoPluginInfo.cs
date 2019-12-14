@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Wbooru.Kernel.Updater;
 using Wbooru.PluginExt;
+using Wbooru.Utils;
 
 namespace WbooruPlugin.Saucenao
 {
@@ -24,7 +25,7 @@ namespace WbooruPlugin.Saucenao
 
         public IEnumerable<ReleaseInfo> GetReleaseInfoList()
         {
-            return Enumerable.Empty<ReleaseInfo>();
+            return UpdaterHelper.GetPostReleaseInfosFromIssue("https://github.com/MikiraSora/Wbooru.PluginsMarket/issues/2");
         }
     }
 }
