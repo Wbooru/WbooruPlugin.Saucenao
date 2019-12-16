@@ -4,15 +4,23 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Wbooru;
 using Wbooru.Kernel.Updater;
 using Wbooru.PluginExt;
+using Wbooru.UI.Controls.PluginExtension;
 using Wbooru.Utils;
+using WbooruPlugin.Saucenao.UI;
 
 namespace WbooruPlugin.Saucenao
 {
     [Export(typeof(PluginInfo))]
     public class SaucenaoPluginInfo : PluginInfo , IPluginUpdatable
     {
+        public SaucenaoPluginInfo()
+        {
+            UIExporter.ExportContent();
+        }
+
         public override string PluginName => "Saucenao Image Infomation Search Plugin";
 
         public override string PluginProjectWebsite => "https://github.com/MikiraSora/WbooruPlugin.Saucenao";
