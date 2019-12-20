@@ -37,13 +37,14 @@
         <Grid Grid.Row="1">
             <ScrollViewer>
                 <StackPanel Margin="10,10,0,0">
-                    <Grid>
+                    <Grid AllowDrop="True" Drop="InputTextBox_Drop">
                         <TextBox
                             Name="InputTextBox"
                             Height="200"
                             Background="{StaticResource ContentBackgroundColor}"
                             FontSize="14"
                             Foreground="White"
+                            PreviewDragOver="InputTextBox_PreviewDragOver"
                             TextWrapping="WrapWithOverflow">
                             <TextBox.Style>
                                 <Style TargetType="TextBox">
@@ -112,23 +113,69 @@
 
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal">
+                                    <TextBlock>
+                                        API Key(<Hyperlink NavigateUri="https://saucenao.com/user.php?page=search-api" RequestNavigate="Hyperlink_RequestNavigate_1">
+                                            <TextBlock Padding="5,0,5,0" Foreground="CadetBlue">Get</TextBlock>
+                                        </Hyperlink>
+                                        )</TextBlock>
+                                    <TextBox
+                                        Name="APIKeyInput"
+                                        Width="300"
+                                        Margin="5,0,0,0"
+                                        HorizontalContentAlignment="Center">
+
+                                    </TextBox>
+                                </StackPanel>
+                                <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
                                     <TextBlock>Database Index (999 for All)</TextBlock>
                                     <TextBox
+                                        Name="DataBaseIndexInput"
                                         Width="100"
                                         Margin="5,0,0,0"
                                         HorizontalContentAlignment="Center">
                                         999
                                     </TextBox>
                                 </StackPanel>
+                                <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
+                                    <TextBlock>Request Count</TextBlock>
+                                    <TextBox
+                                        Name="RequestCountInput"
+                                        Width="100"
+                                        Margin="5,0,0,0"
+                                        HorizontalContentAlignment="Center">
+                                        10
+                                    </TextBox>
+                                </StackPanel>
+
+                                <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
+                                    <TextBlock>DBMask</TextBlock>
+                                    <TextBox
+                                        Name="DBMaskInput"
+                                        Width="100"
+                                        Margin="5,0,0,0"
+                                        HorizontalContentAlignment="Center">
+                                    </TextBox>
+                                </StackPanel>
+                                <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
+                                    <TextBlock>DBMaski</TextBlock>
+                                    <TextBox
+                                        Name="DBMaskiInput"
+                                        Width="100"
+                                        Margin="5,0,0,0"
+                                        HorizontalContentAlignment="Center">
+                                    </TextBox>
+                                </StackPanel>
+
 
                                 <GroupBox Margin="0,20,10,0" Header="下载">
                                     <StackPanel>
-                                        <CheckBox>启用下载功能</CheckBox>
+                                        <CheckBox Name="EnableDownloadCheckBox">启用下载功能</CheckBox>
                                         <StackPanel Margin="0,10,0,0" Orientation="Horizontal">
                                             <TextBlock>
                                                 下载保存文件夹
                                             </TextBlock>
                                             <TextBox
+                                                Name="DownloadSavePathInput"
                                                 Width="200"
                                                 Margin="5,0,5,0"
                                                 FontSize="14">
@@ -143,6 +190,7 @@
                                                 下载文件名格式:
                                             </TextBlock>
                                             <TextBox
+                                                Name="DownloadFileFormatInput"
                                                 Width="300"
                                                 Margin="5,0,5,0"
                                                 FontSize="14">
@@ -155,11 +203,21 @@
 
                             <StackPanel Grid.Column="1">
                                 <CheckBox
+                                    Name="CompressCheckBox"
                                     VerticalAlignment="Center"
                                     VerticalContentAlignment="Center"
                                     FontSize="14"
                                     IsChecked="True">
                                     压缩要查询的图片
+                                </CheckBox>
+                                <CheckBox
+                                    Name="TestModeCheckBox"
+                                    Margin="0,10,0,0"
+                                    VerticalAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    FontSize="14"
+                                    IsChecked="True">
+                                    测试模式
                                 </CheckBox>
                             </StackPanel>
                         </Grid>
@@ -168,6 +226,7 @@
                         Margin="0,30,0,0"
                         Padding="0,10,0,10"
                         BorderBrush="White"
+                        Click="Button_Click"
                         FontSize="16">
                         开始执行
                     </Button>
