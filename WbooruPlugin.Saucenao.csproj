@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatabaseEnum.cs" />
+    <Compile Include="RequestLimit.cs" />
     <Compile Include="ResultInfo.cs" />
     <Compile Include="SaucenaoAPIOption.cs" />
     <Compile Include="SaucenaoSetting.cs" />

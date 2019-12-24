@@ -26,22 +26,32 @@ namespace WbooruPlugin.Saucenao.UI
                 return;
             _init = true;
 
-            var menu_button = new MenuButton()
-            {
-                Name = "SaucenaoSearcherMenuButton",
-                IconSize=15,
-                Text = "搜图",
-                Icon = ""
-            };
+            var creator = new ExtraUICreator();
 
-            menu_button.AddHandler(ButtonBase.ClickEvent, new RoutedEventHandler(OnMenuButtonClick));
-
-            Wbooru.Container.Default.ComposeExportedValue<IExtraMainMenuItem>(menu_button);
+            Wbooru.Container.Default.ComposeExportedValue<IExtraMainMenuItemCreator>(creator);
         }
 
         private static void OnMenuButtonClick(object sender, RoutedEventArgs e)
         {
             NavigationHelper.NavigationPush(new MainSearchImagePage());
+        }
+
+        private class ExtraUICreator : IExtraMainMenuItemCreator
+        {
+            public UIElement Create()
+            {
+                var menu_button = new MenuButton()
+                {
+                    Name = "SaucenaoSearcherMenuButton",
+                    IconSize = 15,
+                    Text = "搜图",
+                    Icon = ""
+                };
+
+                menu_button.AddHandler(ButtonBase.ClickEvent, new RoutedEventHandler(OnMenuButtonClick));
+
+                return menu_button;
+            }
         }
     }
 }

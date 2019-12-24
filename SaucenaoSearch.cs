@@ -77,9 +77,11 @@ namespace WbooruPlugin.Saucenao
 
             IEnumerable<SearchInstance> list;
 
+            //RequestLimit limit = new RequestLimit();
+
             do
             {
-                limit.CheckLimit();
+                //limit.CheckLimit();
 
                 list = task.SearchImageInstances.Where(x => x.ResultInfos == null);
 
@@ -132,7 +134,8 @@ namespace WbooruPlugin.Saucenao
                         file_content.Headers.ContentType = new MediaTypeHeaderValue("image/png");
                         content.Add(file_content, "file", $"{Path.GetFileName(instance.ImagePath)}");
 
-                        var x = content.ReadAsStreamAsync().Result;
+                        var x = content.ReadAsStreamAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                        
                         req.ContentType = content.Headers.ContentType.ToString();
 
                         x.CopyTo(req.GetRequestStream());   

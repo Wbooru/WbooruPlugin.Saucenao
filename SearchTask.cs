@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -10,7 +11,7 @@ namespace WbooruPlugin.Saucenao
     /// <summary>
     /// searializable
     /// </summary>
-    public class SearchTask
+    public class SearchTask : INotifyPropertyChanged
     {
         public static SearchTask CurrentSearchTask { get; internal set; }
 
@@ -26,5 +27,19 @@ namespace WbooruPlugin.Saucenao
 
         public void Report(string message) => ProgressReporter?.Invoke(message);
         public void Report(params SearchInstance[] processed_instances) => ProcessedReporter?.Invoke(processed_instances);
+
+        private SearchInstance current_processing_instance;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public SearchInstance CurrentProcessingInstance
+        {
+            get => current_processing_instance;
+            set
+            {
+                current_processing_instance = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentProcessingInstance)));
+            }
+        }
     }
 }
