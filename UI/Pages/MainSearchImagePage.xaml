@@ -37,11 +37,13 @@
         <Grid Grid.Row="1">
             <ScrollViewer>
                 <StackPanel Margin="10,10,0,0">
-                    <Grid AllowDrop="True" Drop="InputTextBox_Drop">
+                    <Grid>
                         <TextBox
                             Name="InputTextBox"
                             Height="200"
+                            AllowDrop="True"
                             Background="{StaticResource ContentBackgroundColor}"
+                            Drop="InputTextBox_Drop"
                             FontSize="14"
                             Foreground="White"
                             PreviewDragOver="InputTextBox_PreviewDragOver"
