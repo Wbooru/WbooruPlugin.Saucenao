@@ -11,6 +11,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -30,10 +31,29 @@ namespace WbooruPlugin.Saucenao.UI.Pages
             set { SetValue(CurrentTaskProperty, value); }
         }
 
+        enum LayoutState
+        {
+            One, Two, Three
+        }
+
+        LayoutState current_layout = LayoutState.One;
+
+        private Storyboard layout_translate_storyboard;
+
         public ObservableCollection<SearchInstance> ProcessedInstance { get; set; } = new ObservableCollection<SearchInstance>();
 
         public static readonly DependencyProperty CurrentTaskProperty =
             DependencyProperty.Register("CurrentTask", typeof(SearchTask), typeof(SearchProgressPage), new PropertyMetadata((e,d)=>(e as SearchProgressPage)?.OnTaskChanged(d.OldValue as SearchTask, d.NewValue as SearchTask)));
+
+        public SearchInstance CurrentSearchInstance
+        {
+            get { return (SearchInstance)GetValue(CurrentSearchInstanceProperty); }
+            set { SetValue(CurrentSearchInstanceProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for CurrentSearchInstance.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty CurrentSearchInstanceProperty =
+            DependencyProperty.Register("CurrentSearchInstance", typeof(SearchInstance), typeof(SearchProgressPage), new PropertyMetadata(null));
 
         public int ProcessCount
         {
@@ -81,24 +101,34 @@ namespace WbooruPlugin.Saucenao.UI.Pages
             task = task ?? SearchTask.CurrentSearchTask;
             Debug.Assert(task != null);
 
-            CurrentTask = task;
+            CurrentTask = task; 
+            
+            layout_translate_storyboard = new Storyboard();
+            layout_translate_storyboard.Completed += (e, d) =>
+            {
+                ViewPage_SizeChanged(null, null);
+                ObjectPool<ThicknessAnimation>.Return(e as ThicknessAnimation);
+            };
         }
 
-        private void OnProcessedReport(IEnumerable<SearchInstance> obj)
+        private async void OnProcessedReport(IEnumerable<SearchInstance> obj)
         {
-            foreach (var instance in obj)
+            await Dispatcher.InvokeAsync(() =>
             {
-                ProcessedInstance.Add(instance);
+                foreach (var instance in obj)
+                {
+                    ProcessedInstance.Add(instance);
 
-                RaiseProgressMessage($"Instance {instance.ImagePath} is done.");
-            }
+                    RaiseProgressMessage($"Instance {instance.ImagePath} is done.");
+                }
 
-            ProcessCount += obj.Count();
+                ProcessCount += obj.Count();
+            });
         }
 
         private void OnProgressReport(string obj) => RaiseProgressMessage(obj);
 
-        private void RaiseProgressMessage(string message) => MessageList.Text += message + Environment.NewLine;
+        private async void RaiseProgressMessage(string message) => await Dispatcher.InvokeAsync(() => MessageList.Text += message + Environment.NewLine);
 
         private void MenuButton_Click(object sender, RoutedEventArgs e)
         {
@@ -130,14 +160,125 @@ namespace WbooruPlugin.Saucenao.UI.Pages
             }
         }
 
-        public void OnNavigationBackAction()
-        {
-            throw new NotImplementedException();
-        }
-
         public void OnNavigationForwardAction()
         {
-            throw new NotImplementedException();
+            switch (current_layout)
+            {
+                case LayoutState.One:
+                    MenuButton_Click_2(null, null);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void OnNavigationBackAction()
+        {
+            switch (current_layout)
+            {
+                case LayoutState.One:
+                    MenuButton_Click(null, null);
+                    break;
+                case LayoutState.Two:
+                    MenuButton_Click_1(null, null);
+                    break;
+                case LayoutState.Three:
+                    MenuButton_Click_2(null, null);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void ApplyTranslate()
+        {
+            layout_translate_storyboard.Children.Clear();
+
+            if (ObjectPool<ThicknessAnimation>.Get(out var animation))
+            {
+                //init 
+                animation.Duration = new Duration(TimeSpan.FromMilliseconds(250));
+                animation.FillBehavior = FillBehavior.Stop;
+                Storyboard.SetTargetProperty(animation, new PropertyPath(Grid.MarginProperty));
+                animation.EasingFunction = animation.EasingFunction ?? new QuadraticEase() { EasingMode = EasingMode.EaseOut };
+            }
+
+            animation.To = CalculateMargin();
+
+            layout_translate_storyboard.Children.Clear();
+            layout_translate_storyboard.Children.Add(animation);
+            layout_translate_storyboard.Begin(MainPanel);
+        }
+
+        private void ViewPage_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            var new_margin = CalculateMargin();
+            MainPanel.Margin = new_margin;
+        }
+
+        private Thickness CalculateMargin()
+        {
+            double margin_left = 0;
+
+            switch (current_layout)
+            {
+                case LayoutState.One:
+                    margin_left = 0;
+                    break;
+                case LayoutState.Two:
+                    margin_left = 1;
+                    break;
+                case LayoutState.Three:
+                    margin_left = 2;
+                    break;
+                default:
+                    break;
+            }
+
+            margin_left *= -ViewPage.ActualWidth;
+
+            return new Thickness(margin_left, 0, 0, 0);
+        }
+
+        private void MenuButton_Click_1(object sender, RoutedEventArgs e)
+        {
+            current_layout = LayoutState.One;
+            ApplyTranslate();
+        }
+
+        private void MenuButton_Click_2(object sender, RoutedEventArgs e)
+        {
+            current_layout = LayoutState.Two;
+            ApplyTranslate();
+        }
+
+        private void MenuButton_Click_3(object sender, RoutedEventArgs e)
+        {
+            current_layout = LayoutState.Two;
+            ApplyTranslate();
+        }
+
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            e.Handled = true;
+
+            if (!((sender as Hyperlink)?.DataContext is SearchInstance instance))
+                return;
+
+            CurrentSearchInstance = instance;
+
+            current_layout = LayoutState.Three;
+            ApplyTranslate();
+        }
+
+        private void Hyperlink_RequestNavigate_1(object sender, RequestNavigateEventArgs e)
+        {
+            e.Handled = true;
+
+            if (!((sender as Hyperlink)?.NavigateUri is Uri uri))
+                return;
+
+            Process.Start(uri.AbsoluteUri);
         }
     }
 }

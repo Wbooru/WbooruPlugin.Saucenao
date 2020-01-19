@@ -142,7 +142,7 @@ namespace WbooruPlugin.Saucenao
                     }
                 });
 
-                var token = RequestHelper.GetJsonContainer<JObject>(response);
+                var token = RequestHelper.GetJsonObject(response);
 
                 var result = BuildSearchResults(token).OrderByDescending(x => x.Header.Similarity).ToArray();
 

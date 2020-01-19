@@ -6,63 +6,246 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:WbooruPlugin.Saucenao.UI.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:valueconverters="clr-namespace:WbooruPlugin.Saucenao.UI.ValueConverters"
+    x:Name="ViewPage"
     d:DesignHeight="450"
     d:DesignWidth="800"
+    SizeChanged="ViewPage_SizeChanged"
     mc:Ignorable="d">
     <Page.DataContext>
         <Binding RelativeSource="{RelativeSource Self}">
         </Binding>
     </Page.DataContext>
 
-    <Grid x:Name="MainPanel" Background="{StaticResource ContentBackgroundColor}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="40">
-            </RowDefinition>
-            <RowDefinition>
-            </RowDefinition>
-        </Grid.RowDefinitions>
+    <Page.Resources>
+        <valueconverters:PickBestSearchResultConverter x:Key="PickBestSearchResultConverter">
+        </valueconverters:PickBestSearchResultConverter>
+    </Page.Resources>
 
-        <Border Background="{StaticResource BoardColor}">
-            <controls:MenuButton
-                HorizontalAlignment="Left"
-                ButtonBase.Click="MenuButton_Click"
-                ContentMargin="5,0,0,0"
-                Icon=""
-                Text="返回">
-            </controls:MenuButton>
-        </Border>
+    <Grid
+        x:Name="MainPanel"
+        Margin="-800,0,0,0"
+        Background="{StaticResource ContentBackgroundColor}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{Binding ActualWidth, ElementName=ViewPage}" />
+            <ColumnDefinition Width="{Binding ActualWidth, ElementName=ViewPage}" />
+            <ColumnDefinition Width="{Binding ActualWidth, ElementName=ViewPage}" />
+        </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="1">
-            <ProgressBar
-                Height="25"
-                Margin="10"
-                Background="Transparent"
-                BorderBrush="LightGreen"
-                Foreground="LightBlue"
-                Maximum="{Binding TaskCount}"
-                Minimum="0"
-                Value="{Binding ProcessCount}">
-            </ProgressBar>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40">
+                </RowDefinition>
+                <RowDefinition>
+                </RowDefinition>
+            </Grid.RowDefinitions>
+            <Border Background="{StaticResource BoardColor}">
+                <Grid>
+                    <controls:MenuButton
+                        HorizontalAlignment="Left"
+                        ButtonBase.Click="MenuButton_Click"
+                        ContentMargin="5,0,0,0"
+                        Icon=""
+                        Text="返回">
+                    </controls:MenuButton>
 
-            <StackPanel Margin="10,0,0,0" Orientation="Horizontal">
-                <TextBlock FontSize="16" Foreground="White">正在处理 :</TextBlock>
-                <TextBlock
-                    Margin="5,0,0,0"
-                    FontSize="16"
-                    Foreground="White"
-                    MouseDown="TextBlock_MouseDown">
-                    asdasd
-                </TextBlock>
+                    <controls:MenuButton
+                        HorizontalAlignment="Right"
+                        ButtonBase.Click="MenuButton_Click_2"
+                        ContentMargin="0,0,5,0"
+                        FlowDirection="RightToLeft"
+                        Icon=""
+                        Text="搜索结果">
+                    </controls:MenuButton>
+                </Grid>
+            </Border>
+
+            <StackPanel Grid.Row="1">
+                <ProgressBar
+                    Height="25"
+                    Margin="10"
+                    Background="Transparent"
+                    BorderBrush="LightGreen"
+                    Foreground="LightBlue"
+                    Maximum="{Binding TaskCount}"
+                    Minimum="0"
+                    Value="{Binding ProcessCount}">
+                </ProgressBar>
+
+                <StackPanel Margin="10,0,0,0" Orientation="Horizontal">
+                    <TextBlock FontSize="16" Foreground="White">正在处理 :</TextBlock>
+                    <TextBlock
+                        Margin="5,0,0,0"
+                        FontSize="16"
+                        Foreground="White"
+                        MouseDown="TextBlock_MouseDown">
+                        asdasd
+                    </TextBlock>
+                </StackPanel>
+
+                <ScrollViewer Margin="0,20,0,0" Focusable="False">
+                    <TextBlock
+                        Name="MessageList"
+                        Margin="10,0,0,0"
+                        FontSize="16"
+                        Foreground="White"
+                        TextWrapping="Wrap">
+                    </TextBlock>
+                </ScrollViewer>
             </StackPanel>
+        </Grid>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40">
+                </RowDefinition>
+                <RowDefinition>
+                </RowDefinition>
+            </Grid.RowDefinitions>
+            <Border Background="{StaticResource BoardColor}">
+                <Grid>
+                    <controls:MenuButton
+                        HorizontalAlignment="Left"
+                        ButtonBase.Click="MenuButton_Click_1"
+                        ContentMargin="5,0,0,0"
+                        Icon=""
+                        Text="返回">
+                    </controls:MenuButton>
+                </Grid>
+            </Border>
 
-            <ScrollViewer>
-                <TextBlock
-                    Name="MessageList"
-                    FontSize="16"
-                    Foreground="White"
-                    TextWrapping="Wrap">
-                </TextBlock>
-            </ScrollViewer>
-        </StackPanel>
+            <ItemsControl
+                Grid.Row="1"
+                ItemsSource="{Binding ProcessedInstance}"
+                VirtualizingPanel.IsVirtualizing="True"
+                VirtualizingPanel.VirtualizationMode="Recycling">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="#20FFFFFF" BorderThickness="0,1,0,1">
+                            <StackPanel
+                                Margin="10,0,10,0"
+                                HorizontalAlignment="Left"
+                                Orientation="Horizontal">
+                                <Image
+                                    Width="125"
+                                    Height="225"
+                                    Source="{Binding IsAsync=True, Path=ImagePath}">
+                                </Image>
+
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Margin="10" VerticalAlignment="Center">
+                                        <Label
+                                            Content="{Binding ImagePath}"
+                                            ContentStringFormat="文件: {0}"
+                                            FontSize="16"
+                                            Foreground="White">
+                                        </Label>
+                                        <StackPanel DataContext="{Binding ., Converter={StaticResource PickBestSearchResultConverter}}">
+                                            <Label
+                                                Content="{Binding Header.Similarity}"
+                                                ContentStringFormat="最高相似度: {0}"
+                                                FontSize="16"
+                                                Foreground="White">
+                                            </Label>
+                                            <Label
+                                                Content="{Binding Header.DatabaseName}"
+                                                ContentStringFormat="来源: {0}"
+                                                FontSize="16"
+                                                Foreground="White">
+                                            </Label>
+                                        </StackPanel>
+                                        <Label>
+                                            <Hyperlink
+                                                FontSize="16"
+                                                Foreground="LightBlue"
+                                                NavigateUri="L28572Q1"
+                                                RequestNavigate="Hyperlink_RequestNavigate">
+                                                查看匹配列表
+                                            </Hyperlink>
+                                        </Label>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+        <Grid Grid.Column="2" DataContext="{Binding CurrentSearchInstance}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40">
+                </RowDefinition>
+                <RowDefinition>
+                </RowDefinition>
+            </Grid.RowDefinitions>
+            <Border Background="{StaticResource BoardColor}">
+                <Grid>
+                    <controls:MenuButton
+                        HorizontalAlignment="Left"
+                        ButtonBase.Click="MenuButton_Click_3"
+                        ContentMargin="5,0,0,0"
+                        Icon=""
+                        Text="返回">
+                    </controls:MenuButton>
+                </Grid>
+            </Border>
+
+            <ItemsControl Grid.Row="1" ItemsSource="{Binding ResultInfos}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+
+                        <StackPanel
+                            Margin="10,0,10,0"
+                            HorizontalAlignment="Left"
+                            Orientation="Horizontal">
+                            <Image
+                                Width="125"
+                                Height="225"
+                                Source="{Binding IsAsync=True, Path=Header.ThumbnailUrl}">
+                            </Image>
+
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <StackPanel Margin="10" VerticalAlignment="Center">
+                                    <Label
+                                        Content="{Binding AvaliableDisplayName}"
+                                        ContentStringFormat="名字: {0}"
+                                        FontSize="16"
+                                        Foreground="White">
+                                    </Label>
+                                    <Label
+                                        Content="{Binding Header.Similarity}"
+                                        ContentStringFormat="相似度: {0}"
+                                        FontSize="16"
+                                        Foreground="White">
+                                    </Label>
+                                    <Label
+                                        Content="{Binding Header.DatabaseName}"
+                                        ContentStringFormat="来源: {0}"
+                                        FontSize="16"
+                                        Foreground="White">
+                                    </Label>
+                                    <Label>
+                                        <Hyperlink
+                                            FontSize="16"
+                                            Foreground="LightBlue"
+                                            NavigateUri="{Binding ReferenceURL}"
+                                            RequestNavigate="Hyperlink_RequestNavigate_1">
+                                            打开图片源网页
+                                        </Hyperlink>
+                                    </Label>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
     </Grid>
 </Page>

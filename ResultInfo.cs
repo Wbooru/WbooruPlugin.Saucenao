@@ -29,5 +29,37 @@ namespace WbooruPlugin.Saucenao
 
         [JsonProperty("header")]
         public HeaderInfo Header { get; set; }
+
+        private string title = "";
+
+        public string AvaliableDisplayName
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(title))
+                    return title;
+
+                title = DataJson["title"]?.ToString();
+
+                title = string.IsNullOrWhiteSpace(title) ? Header.IndexName : title;
+
+                return title;
+            }
+        }
+
+        private string reference_url = "";
+
+        public string ReferenceURL
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(reference_url))
+                    return reference_url;
+
+                reference_url = DataJson["ext_urls"]?.First?.ToString();
+
+                return reference_url;
+            }
+        }
     }
 }
